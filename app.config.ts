@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 export default {
-    expo{
+    expo: {
         name:'Checkealo',
         slug:'checkealo',
         extra:{

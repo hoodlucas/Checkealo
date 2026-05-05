@@ -5,6 +5,8 @@ import {
   View,
 } from "react-native";
 
+import { AppCheckbox } from "@/components/ui/AppCheckbox";
+
 export function HealthConditions() {
   return (
     <View style={styles.container}>
@@ -20,7 +22,10 @@ export function HealthConditions() {
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Teléfono</Text>
-        <TextInput style={styles.input} />
+        <TextInput
+          style={styles.input}
+          keyboardType="phone-pad"
+        />
       </View>
 
       <View style={styles.inputGroup}>
@@ -33,17 +38,29 @@ export function HealthConditions() {
           Condición actual
         </Text>
 
-        <View style={styles.checkboxContainer}>
-          <Text>☑ Diabético</Text>
-        </View>
+        <AppCheckbox
+          label="Diabético"
+          value={true}
+          onValueChange={(value) => {
+            console.log("Diabético:", value);
+          }}
+        />
 
-        <View style={styles.checkboxContainer}>
-          <Text>☐ Celíaco</Text>
-        </View>
+        <AppCheckbox
+          label="Celíaco"
+          value={false}
+          onValueChange={(value) => {
+            console.log("Celíaco:", value);
+          }}
+        />
 
-        <View style={styles.checkboxContainer}>
-          <Text>☐ Hipertenso</Text>
-        </View>
+        <AppCheckbox
+          label="Hipertenso"
+          value={false}
+          onValueChange={(value) => {
+            console.log("Hipertenso:", value);
+          }}
+        />
       </View>
     </View>
   );
@@ -79,18 +96,15 @@ const styles = StyleSheet.create({
     borderColor: "#555",
     borderRadius: 16,
     padding: 16,
-    gap: 14,
+    gap: 16,
     backgroundColor: "#FFF",
+    minHeight: 170,
   },
 
   conditionsTitle: {
     fontSize: 15,
     fontWeight: "700",
     color: "#000",
-  },
-
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    marginBottom: 4,
   },
 });

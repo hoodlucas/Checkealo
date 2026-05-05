@@ -9,6 +9,7 @@ export function ProfileForm() {
     <ScrollView
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
     >
       <ProfileHeader />
 
@@ -25,7 +26,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 24,
     paddingTop: 24,
-    paddingBottom: 40,
+    paddingBottom: 180,
   },
 
   form: {

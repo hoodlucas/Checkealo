@@ -34,7 +34,7 @@ export default function LayoutTabs() {
                 headerShown: false }} />
 
             <Tabs.Screen 
-              name="scanner/index" 
+              name="scanner" 
               options={{ 
                 title: 'Scanner',
                 tabBarIcon: ({ color, size }) => (

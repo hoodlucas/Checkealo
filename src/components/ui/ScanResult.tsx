@@ -1,11 +1,5 @@
-/**
- * Este componente es el encargado de mostrar la "tarjeta" de veredicto
- * sobre si un producto es apto o no para el consumo según la condición del usuario.
- */
-
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { DiagnosisStatus } from '@/services/diagnosis.service';
 
 interface ScanResultProps {
     product: {
@@ -14,23 +8,35 @@ interface ScanResultProps {
         ingredients: string;
     };
     diagnosis: {
-        status: DiagnosisStatus;
-        forbiddenIngredients: string[];
+        status: 'safe' | 'danger' | 'uncertain'; // Ahora recibimos el status
+        warnings: string[];
     };
     onClose: () => void;
 }
 
 export function ScanResult({ product, diagnosis, onClose }: ScanResultProps) {
-    const { status, forbiddenIngredients } = diagnosis;
+    const { status, warnings } = diagnosis;
 
-    // Tipamos explícitamente para evitar el error de TS
-    const config: Record<DiagnosisStatus, { color: string; text: string }> = {
-        safe: { color: '#4CAF50', text: 'PRODUCTO APTO' },
-        danger: { color: '#F44336', text: 'NO RECOMENDADO' },
-        uncertain: { color: '#FF9800', text: 'ATENCIÓN / DUDA' }
+    // Configuración unificada de colores y textos
+    const configs = {
+        safe: { 
+            color: '#4CAF50', 
+            text: 'PRODUCTO APTO', 
+            subtext: 'No se detectaron riesgos para tu perfil.' 
+        },
+        danger: { 
+            color: '#F44336', 
+            text: 'NO RECOMENDADO', 
+            subtext: 'Se detectaron las siguientes alertas:' 
+        },
+        uncertain: { 
+            color: '#FF9800', 
+            text: 'ATENCIÓN / DUDA', 
+            subtext: 'Información insuficiente para un diagnóstico:' 
+        }
     };
 
-    const current = config[status];
+    const current = configs[status];
 
     return (
         <View style={styles.overlay}>
@@ -45,33 +51,32 @@ export function ScanResult({ product, diagnosis, onClose }: ScanResultProps) {
                     
                     <View style={styles.divider} />
 
-                    {status === 'safe' && (
-                        <Text style={styles.safeText}>No se detectaron ingredientes prohibidos para tu perfil.</Text>
-                    )}
+                    <Text style={[styles.subtext, { color: current.color }]}>
+                        {current.subtext}
+                    </Text>
 
-                    {status === 'danger' && (
-                        <View>
-                            <Text style={styles.dangerText}>Se detectó:</Text>
-                            {forbiddenIngredients.map((ing, i) => (
-                                <Text key={i} style={styles.ingredientTag}>• {ing.toUpperCase()}</Text>
+                    {warnings.length > 0 && (
+                        <View style={[styles.warningContainer, { backgroundColor: status === 'uncertain' ? '#FFF3E0' : '#FFEBEE' }]}>
+                            {warnings.map((msg, i) => (
+                                <View key={i} style={styles.warningItem}>
+                                    <Text style={[styles.warningBullet, { color: current.color }]}>•</Text>
+                                    <Text style={styles.warningText}>{msg}</Text>
+                                </View>
                             ))}
                         </View>
                     )}
 
                     {status === 'uncertain' && (
-                        <View style={styles.uncertainBox}>
-                            <Text style={styles.uncertainTitle}>⚠️ Información Incompleta</Text>
-                            <Text style={styles.uncertainDesc}>
-                                Los datos de este producto no son suficientes para un diagnóstico seguro. Por favor, verificá el sello TACC o la lista de ingredientes en el envase físico.
-                            </Text>
-                        </View>
+                        <Text style={styles.manualCheck}>
+                            Por favor, verificá manualmente el envase para confirmar que sea apto.
+                        </Text>
                     )}
 
                     <View style={styles.divider} />
 
-                    <Text style={styles.sectionTitle}>Ingredientes en base de datos:</Text>
+                    <Text style={styles.sectionTitle}>Datos analizados:</Text>
                     <Text style={styles.ingredientsRaw}>
-                        {product.ingredients || 'Sin información de ingredientes registrada.'}
+                        {product.ingredients || 'Sin lista de ingredientes en base de datos.'}
                     </Text>
                 </ScrollView>
 
@@ -83,31 +88,23 @@ export function ScanResult({ product, diagnosis, onClose }: ScanResultProps) {
     );
 }
 
-
 const styles = StyleSheet.create({
-    uncertainBox: {
-        backgroundColor: '#FFF3E0',
-        padding: 15,
-        borderRadius: 12,
-        borderLeftWidth: 5,
-        borderLeftColor: '#E65100',
-    },
-    uncertainTitle: { color: '#E65100', fontWeight: 'bold', fontSize: 16 },
-    uncertainDesc: { color: '#E65100', marginTop: 5, lineHeight: 20 },
-    // ... resto de estilos ...
     overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', padding: 25, zIndex: 1000 },
     card: { backgroundColor: 'white', borderRadius: 24, borderWidth: 3, maxHeight: '85%', overflow: 'hidden' },
     header: { paddingVertical: 18, alignItems: 'center' },
     headerText: { color: 'white', fontWeight: '900', fontSize: 20 },
     content: { padding: 20 },
-    brand: { fontSize: 13, color: '#888', textTransform: 'uppercase' },
-    name: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+    brand: { fontSize: 12, color: '#888', textTransform: 'uppercase' },
+    name: { fontSize: 22, fontWeight: 'bold', marginBottom: 10 },
     divider: { height: 1, backgroundColor: '#f0f0f0', marginVertical: 15 },
-    sectionTitle: { fontSize: 14, fontWeight: 'bold', marginBottom: 8, color: '#555' },
-    safeText: { color: '#2E7D32', fontSize: 15 },
-    dangerText: { color: '#C62828', fontWeight: 'bold' },
-    ingredientTag: { color: '#C62828', marginLeft: 10, fontWeight: '700' },
-    ingredientsRaw: { fontSize: 13, color: '#999', fontStyle: 'italic' },
+    subtext: { fontSize: 16, fontWeight: '600', marginBottom: 10, textAlign: 'center' },
+    warningContainer: { padding: 12, borderRadius: 10 },
+    warningItem: { flexDirection: 'row', marginBottom: 6 },
+    warningBullet: { fontWeight: 'bold', marginRight: 8 },
+    warningText: { flex: 1, fontSize: 14, color: '#333' },
+    manualCheck: { marginTop: 10, fontSize: 13, fontStyle: 'italic', color: '#666', textAlign: 'center' },
+    sectionTitle: { fontSize: 13, fontWeight: 'bold', marginBottom: 8, color: '#555' },
+    ingredientsRaw: { fontSize: 12, color: '#999', fontStyle: 'italic' },
     button: { backgroundColor: '#1a1a1a', paddingVertical: 20, alignItems: 'center' },
     buttonText: { color: 'white', fontWeight: 'bold', letterSpacing: 2 }
 });

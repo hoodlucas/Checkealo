@@ -9,7 +9,7 @@ export default function Home() {
     <Screen>
       <BrandHeader
         title="Mi App"
-        subtitle="Bienvenido"
+        subtitle="EN LA CONSOLA VAS A VER LO DE LA BD ;)"
         logo={logo} />
         <Login />
     </Screen>

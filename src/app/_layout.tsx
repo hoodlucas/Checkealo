@@ -1,19 +1,29 @@
-import React, { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ConditionsService } from '../services/conditions'; // Ajustá la ruta según tu carpeta
-import '@/lib/supabase';
+import { Stack } from "expo-router";
+import { ActivityIndicator, View } from 'react-native'
+import { useAuth } from "@/hooks/useAuth";
 
-export default function Layout() {
-  
-  useEffect(() => {
-    // Ejecuta la verificación silenciosa en la consola
-    ConditionsService.testConnection();
-  }, []);
+export default function RootLayout() {
+ const { session, loading } = useAuth()
 
+ if (loading) {
   return (
-    <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <view style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+    </view>
+  )
+ }
+
+ if (!session) {
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="register" />
     </Stack>
-    );
+  )
+ }
+
+ return (
+  <Stack screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="(tabs)" />
+  </Stack>
+ )
 }

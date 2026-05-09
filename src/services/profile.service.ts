@@ -1,25 +1,37 @@
 import { supabase } from "@/lib/supabase";
-import { Profile } from "../types/profile.types";
 
-export async function getProfile(): Promise<Profile> {
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    throw new Error("Usuario no autenticado");
-  }
-
+export async function getProfile(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
-    .eq("id", user.id)
+    .select(`
+      id,
+      email,
+      full_name,
+      phone,
+      birth_date,
+      user_conditions (
+        conditions (
+          id,
+          name,
+          forbidden_ingredients,
+          max_sugar,
+          max_sodium,
+          description
+        )
+      )
+    `)
+    .eq("id", userId)
     .single();
 
   if (error) {
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    conditions:
+      data.user_conditions?.map(
+        (item: any) => item.conditions
+      ) ?? [],
+  };
 }

@@ -1,3 +1,12 @@
+export type HealthCondition = {
+  id: string;
+  name: string;
+  forbidden_ingredients: string[] | null;
+  max_sugar: number | null;
+  max_sodium: number | null;
+  description: string | null;
+};
+
 export type Profile = {
   id: string;
 
@@ -9,9 +18,5 @@ export type Profile = {
 
   birth_date: string | null;
 
-  diabetic: boolean;
-
-  celiac: boolean;
-
-  hypertensive: boolean;
+  conditions: HealthCondition[];
 };

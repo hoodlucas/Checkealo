@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
@@ -7,24 +6,23 @@ import {
 } from "react-native";
 
 import { AppCheckbox } from "@/components/ui/AppCheckbox";
-import { useProfile } from "@/hooks/useProfile";
 import { formatDate } from "@/utils/formatDate";
+import { Profile } from "@/types/profile.types";
 
 
-export function HealthConditions() {
-  const { profile, loading, error } = useProfile();
+type Props = {
+  profile: Profile;
+};
 
-  if (loading) {
-    return <ActivityIndicator size="large" />;
-  }
-
-  if (error || !profile) {
-    return (
-      <Text style={styles.errorText}>
-        Error al cargar perfil
-      </Text>
+export function HealthConditions({ profile }: Props) {
+  
+   const hasCondition = (
+    conditionName: string
+  ) =>
+    profile.conditions.some(
+      (condition) =>
+        condition.name === conditionName
     );
-  }
 
   return (
     <View style={styles.container}>
@@ -35,7 +33,7 @@ export function HealthConditions() {
 
         <TextInput
           style={styles.input}
-          value={profile.email}
+          value={profile.email ?? ""}
           editable={false}
         />
       </View>
@@ -78,20 +76,20 @@ export function HealthConditions() {
 
         <AppCheckbox
           label="Diabético"
-          value={profile.diabetic}
-          onValueChange={() => {}}
+          checked={hasCondition("Diabetes")}
+          disabled
         />
 
         <AppCheckbox
           label="Celíaco"
-          value={profile.celiac}
-          onValueChange={() => {}}
+          checked={hasCondition("Celiaquía")}
+          disabled
         />
 
         <AppCheckbox
           label="Hipertenso"
-          value={profile.hypertensive}
-          onValueChange={() => {}}
+          checked={hasCondition("Hipertensión")}
+          disabled
         />
       </View>
     </View>

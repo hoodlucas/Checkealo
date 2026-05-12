@@ -1,10 +1,36 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, View,Text } from "react-native";
 
 import { ProfileHeader } from "./ProfileHeader";
 import { HealthConditions } from "./HealthConditions";
 import { LogoutButton } from "./LogoutButton";
+import { useProfile } from "@/hooks/useProfile";
 
 export function ProfileForm() {
+
+  const {
+    profile,
+    loading,
+    error,
+  } = useProfile();
+  
+   if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>
+          Error al cargar el perfil !!
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -14,7 +40,7 @@ export function ProfileForm() {
       <ProfileHeader />
 
       <View style={styles.form}>
-        <HealthConditions />
+        <HealthConditions profile={profile} />
 
         <LogoutButton />
       </View>
@@ -29,7 +55,17 @@ const styles = StyleSheet.create({
     paddingBottom: 180,
   },
 
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   form: {
     gap: 20,
   },
+  errorText: {
+      color: "red",
+      fontSize: 16,
+    },
 });

@@ -6,31 +6,67 @@ import {
 } from "react-native";
 
 import { AppCheckbox } from "@/components/ui/AppCheckbox";
+import { formatDate } from "@/utils/formatDate";
+import { Profile } from "@/types/profile.types";
 
-export function HealthConditions() {
+
+type Props = {
+  profile: Profile;
+};
+
+export function HealthConditions({ profile }: Props) {
+  
+   const hasCondition = (
+    conditionName: string
+  ) =>
+    profile.conditions.some(
+      (condition) =>
+        condition.name === conditionName
+    );
+
   return (
     <View style={styles.container}>
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Correo electrónico</Text>
-        <TextInput style={styles.input} />
-      </View>
+        <Text style={styles.label}>
+          Correo electrónico
+        </Text>
 
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Nombre completo</Text>
-        <TextInput style={styles.input} />
-      </View>
-
-      <View style={styles.inputGroup}>
-        <Text style={styles.label}>Teléfono</Text>
         <TextInput
           style={styles.input}
-          keyboardType="phone-pad"
+          value={profile.email ?? ""}
+          editable={false}
         />
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Fecha de nacimiento</Text>
-        <TextInput style={styles.input} />
+        <Text style={styles.label}>
+          Nombre completo
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          value={profile.full_name ?? ""}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Teléfono</Text>
+
+        <TextInput
+          style={styles.input}
+          value={profile.phone ?? ""}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>
+          Fecha de nacimiento
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          value={formatDate(profile.birth_date) ?? ""}
+        />
       </View>
 
       <View style={styles.conditionsContainer}>
@@ -40,26 +76,20 @@ export function HealthConditions() {
 
         <AppCheckbox
           label="Diabético"
-          value={true}
-          onValueChange={(value) => {
-            console.log("Diabético:", value);
-          }}
+          checked={hasCondition("Diabetes")}
+          disabled
         />
 
         <AppCheckbox
           label="Celíaco"
-          value={false}
-          onValueChange={(value) => {
-            console.log("Celíaco:", value);
-          }}
+          checked={hasCondition("Celiaquía")}
+          disabled
         />
 
         <AppCheckbox
           label="Hipertenso"
-          value={false}
-          onValueChange={(value) => {
-            console.log("Hipertenso:", value);
-          }}
+          checked={hasCondition("Hipertensión")}
+          disabled
         />
       </View>
     </View>
@@ -106,5 +136,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#000",
     marginBottom: 4,
+  },
+
+  errorText: {
+    color: "red",
+    fontSize: 16,
   },
 });

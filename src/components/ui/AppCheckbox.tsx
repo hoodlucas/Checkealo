@@ -1,25 +1,28 @@
+import { View, Text, StyleSheet } from "react-native";
+
 import Checkbox from "expo-checkbox";
-import { StyleSheet, Text, View } from "react-native";
 
 type Props = {
   label: string;
-  value: boolean;
-  onValueChange: (value: boolean) => void;
+  checked: boolean;
+  disabled?: boolean;
 };
 
 export function AppCheckbox({
   label,
-  value,
-  onValueChange,
+  checked,
+  disabled = false,
 }: Props) {
   return (
     <View style={styles.container}>
       <Checkbox
-        value={value}
-        onValueChange={onValueChange}
+        value={checked}
+        disabled={disabled}
       />
 
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -32,6 +35,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: 16,
+    fontSize: 15,
+    color: "#000",
   },
 });

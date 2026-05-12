@@ -2,6 +2,9 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router'; // Para la navegación
 import Screen from '@/components/ui/Screen';
+//import BrandHeader from '@/components/ui/BrandHeader';
+//import logo from '../../assets/logo.png';
+import Login from './login';
 import BrandHeader from '@/components/ui/BrandHeader';
 import { Text } from 'react-native'; // Usamos el nativo por ahora como acordamos
 import logo from "../../assets/logo.png";
@@ -11,6 +14,7 @@ export default function Home() {
 
   return (
     <Screen>
+      <Login />
       <BrandHeader
         title="Checkealo"
         subtitle="Escanea y cuida tu salud"

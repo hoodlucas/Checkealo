@@ -3,13 +3,17 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router'; 
 
-const Login: React.FC = () => {
+const RegisterForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    console.log('Intentando iniciar sesión con:', { email, password });
+  const handleRegister = () => {
+    if (!email || !password) {
+      alert("Por favor, completa todos los campos");
+      return;
+    }
+    console.log('Intentando registrarse con:', { email, password });
   };
 
   return (
@@ -22,11 +26,8 @@ const Login: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.card}>
-          <Text style={styles.headerTitle}>Iniciar sesión</Text>
-          <Text style={styles.headerSubtitle}>
-            Inicia sesión con tu dirección de mail y contraseña.
-          </Text>
-
+          <Text style={styles.headerTitle}>Crear cuenta</Text>
+          
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Correo electrónico</Text>
             <View style={styles.inputWrapper}>
@@ -39,7 +40,6 @@ const Login: React.FC = () => {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                autoCorrect={false}
               />
             </View>
           </View>
@@ -57,7 +57,6 @@ const Login: React.FC = () => {
                 secureTextEntry={!showPassword} 
                 autoCapitalize="none"
               />
-    
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconRight}>
                 <MaterialCommunityIcons 
                   name={showPassword ? "eye-off-outline" : "eye-outline"} 
@@ -68,23 +67,25 @@ const Login: React.FC = () => {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.forgotPasswordLink}>
-            <Text style={styles.forgotPasswordText}>¿Te olvidaste la contraseña?</Text>
+          <TouchableOpacity style={styles.primaryButton} onPress={handleRegister}>
+            <Text style={styles.primaryButtonText}>Crear usuario</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
-            <Text style={styles.primaryButtonText}>Iniciar sesión</Text>
-          </TouchableOpacity>
-
-          <View style={styles.registerContainer}>
-  <Text style={styles.registerTextNormal}>¿No tenés cuenta? </Text>
-  {/* El componente Link actúa como el TouchableOpacity */}
-  <Link href="/register" asChild>
-    <TouchableOpacity>
-      <Text style={styles.registerTextLink}>Registrate</Text>
-    </TouchableOpacity>
-  </Link>
-</View>
+          <View style={styles.footerContainer}>
+            <Text style={styles.legalText}>
+              Al crear la cuenta acepta los términos y condiciones del servicio.
+            </Text>
+            
+            <View style={styles.loginRedirect}>
+              <Text style={styles.registerTextNormal}>¿Ya tenés una cuenta? </Text>
+              {/* Agregamos el Link para volver al Login */}
+              <Link href="/login" asChild>
+                <TouchableOpacity>
+                  <Text style={styles.registerTextLink}>Inicia sesión</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -102,32 +103,24 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   card: {
-  backgroundColor: '#FFFFFF',
-  borderRadius: 24,
-  padding: 25,    
-  width: '100%',
-  maxWidth: 400,  
-  alignSelf: 'center',
-  // Sombra para Android
-  elevation: 4,
-  // Sombra para iOS
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-},
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 25,    
+    width: '100%',
+    maxWidth: 400,  
+    alignSelf: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
     color: '#1A1A1A',
-    marginBottom: 10,
+    marginBottom: 30, // Más espacio debajo del título
     marginTop: 10,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    lineHeight: 22,
-    marginBottom: 35,
   },
   inputGroup: {
     marginBottom: 20,
@@ -162,33 +155,35 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
   },
-  forgotPasswordLink: {
-    alignSelf: 'flex-start',
-    marginBottom: 30,
-  },
-  forgotPasswordText: {
-    color: '#3B82F6', 
-    fontSize: 14,
-    textDecorationLine: 'underline',
-  },
   primaryButton: {
     backgroundColor: '#3B82F6',
     borderRadius: 8,
     height: 55,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginTop: 10,
+    marginBottom: 20,
   },
   primaryButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
-  registerContainer: {
+  footerContainer: {
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  legalText: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    marginBottom: 20,
+    fontStyle: 'italic',
+    lineHeight: 18,
+  },
+  loginRedirect: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
   },
   registerTextNormal: {
     fontSize: 14,
@@ -202,4 +197,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default RegisterForm;

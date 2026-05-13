@@ -3,6 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from 'r
 import { Stack } from 'expo-router';
 import { CameraView } from 'expo-camera';
 
+// NUEVO: Importar supabase para guardar en la BD
+import { supabase } from '@/lib/supabase'; 
+
 // Hooks y Servicios
 import { useScanner } from '@/features/scanner/hooks/useScanner';
 import { FoodService } from '@/services/food.service';
@@ -12,7 +15,6 @@ import DiagnosisService from "@/services/diagnosis.service";
 // Componentes de UI
 import { ScanResult } from '@/components/ui/ScanResult';
 
-// ID de usuario para pruebas (después lo cambiamos por el de Auth)
 const MOCK_USER_ID = "dbc0f41d-77eb-44ad-b9d2-1b6682b3cb34"; 
 
 export default function ScannerPage() {
@@ -21,7 +23,6 @@ export default function ScannerPage() {
     const [userConditions, setUserConditions] = useState<any[]>([]);
     const [scanResult, setScanResult] = useState<{ product: any; diagnosis: any } | null>(null);
 
-    // Cargar condiciones de Supabase al iniciar
     useEffect(() => {
         async function loadConditions() {
             try {
@@ -33,6 +34,28 @@ export default function ScannerPage() {
         }
         loadConditions();
     }, []);
+
+    // NUEVO: Función para insertar en la tabla 'scan_history'
+    const saveToHistory = async (product: any, diagnosis: any) => {
+        try {
+            const { error } = await supabase
+                .from('scan_history')
+                .insert([
+                    {
+                        user_id: MOCK_USER_ID,
+                        barcode: product.code,
+                        product_name: product.product_name || "Producto desconocido",
+                        brand: product.brands || "Marca desconocida",
+                        result: diagnosis.isSafe ? "Apto" : "No Apto", // Basado en tu lógica de DiagnosisService
+                        scanned_at: new Date().toISOString(),
+                    }
+                ]);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error("Error al guardar en el historial:", error);
+        }
+    };
 
     const handleScan = async (data: string) => {
         pauseScanning(); 
@@ -49,8 +72,10 @@ export default function ScannerPage() {
                 return;
             }
 
-            // Usamos el servicio externo para la evaluación
             const diagnosis = DiagnosisService.checkProduct(product, userConditions);
+
+            // NUEVO: Llamamos a la función de guardado
+            await saveToHistory(product, diagnosis);
 
             setScanResult({ product, diagnosis });
 
@@ -64,12 +89,11 @@ export default function ScannerPage() {
         }
     };
 
+    // ... resto del componente (handleClose, renders, styles) se mantiene igual
     const handleClose = () => {
         setScanResult(null);
         resumeScanning();
     };
-
-    // --- Renderizado de Pantalla ---
 
     if (!permission) {
         return (
@@ -121,6 +145,7 @@ export default function ScannerPage() {
     );
 }
 
+// ... (los estilos se mantienen igual)
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#000' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },

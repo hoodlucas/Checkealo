@@ -43,7 +43,7 @@ export default function LayoutTabs() {
                 headerShown: false}} />
                 
             <Tabs.Screen 
-              name="profile/index" 
+              name="profile" 
               options={{ 
                 title: 'Profile',
                 tabBarIcon: ({ color, size }) => (

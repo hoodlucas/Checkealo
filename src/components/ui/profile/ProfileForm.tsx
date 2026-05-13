@@ -4,6 +4,8 @@ import { ProfileHeader } from "./ProfileHeader";
 import { HealthConditions } from "./HealthConditions";
 import { LogoutButton } from "./LogoutButton";
 import { useProfile } from "@/hooks/useProfile";
+import EditProfileButton from "./EditProfileButton";
+import { router } from "expo-router";
 
 export function ProfileForm() {
 
@@ -38,6 +40,11 @@ export function ProfileForm() {
       keyboardShouldPersistTaps="handled"
     >
       <ProfileHeader />
+      <EditProfileButton
+        onPress={() =>
+          router.push("/profile/editProfileScreen")
+        }
+      />
 
       <View style={styles.form}>
         <HealthConditions profile={profile} />
@@ -50,6 +57,7 @@ export function ProfileForm() {
 
 const styles = StyleSheet.create({
   container: {
+    flex:1,
     paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: 180,

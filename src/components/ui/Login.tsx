@@ -2,22 +2,45 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router'; 
+import { supabase } from '@/lib/supabase'; 
+import { useRouter } from 'expo-router';
+import { Alert } from 'react-native'; 
 
 const Login: React.FC = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    console.log('Intentando iniciar sesión con:', { email, password });
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Atención', 'Por favor, completá todos los campos.');
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      Alert.alert('Error', 'Credenciales incorrectas o usuario no verificado.');
+      setLoading(false);
+    } else {
+      setLoading(false);
+      router.replace('/scanner'); 
+    }
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.mainContainer}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
@@ -51,18 +74,16 @@ const Login: React.FC = () => {
               <TextInput
                 style={styles.inputWithIcon}
                 placeholder="••••••••••••"
-                placeholderTextColor="#A0A0A0"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry={!showPassword} 
+                secureTextEntry={!showPassword}
                 autoCapitalize="none"
               />
-    
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconRight}>
-                <MaterialCommunityIcons 
-                  name={showPassword ? "eye-off-outline" : "eye-outline"} 
-                  size={24} 
-                  color="#A0A0A0" 
+                <MaterialCommunityIcons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={24}
+                  color="#A0A0A0"
                 />
               </TouchableOpacity>
             </View>
@@ -77,14 +98,13 @@ const Login: React.FC = () => {
           </TouchableOpacity>
 
           <View style={styles.registerContainer}>
-  <Text style={styles.registerTextNormal}>¿No tenés cuenta? </Text>
-  {/* El componente Link actúa como el TouchableOpacity */}
-  <Link href="/register" asChild>
-    <TouchableOpacity>
-      <Text style={styles.registerTextLink}>Registrate</Text>
-    </TouchableOpacity>
-  </Link>
-</View>
+            <Text style={styles.registerTextNormal}>¿No tenés cuenta? </Text>
+            <Link href="/register" asChild>
+              <TouchableOpacity>
+                <Text style={styles.registerTextLink}>Registrate</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -96,26 +116,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
-  scrollContainer: { 
+  scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
   },
   card: {
-  backgroundColor: '#FFFFFF',
-  borderRadius: 24,
-  padding: 25,    
-  width: '100%',
-  maxWidth: 400,  
-  alignSelf: 'center',
-  // Sombra para Android
-  elevation: 4,
-  // Sombra para iOS
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-},
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 25,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
@@ -167,7 +185,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   forgotPasswordText: {
-    color: '#3B82F6', 
+    color: '#3B82F6',
     fontSize: 14,
     textDecorationLine: 'underline',
   },

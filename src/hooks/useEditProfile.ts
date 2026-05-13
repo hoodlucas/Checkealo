@@ -8,10 +8,13 @@ import {
   updateProfile,
 } from "@/services/editProfile.service";
 
-export const MOCK_USER_ID =
-  "94244a9c-d38c-4228-907e-8ad9b16a878e";
+import { useAuth } from "@/hooks/useAuth";
 
 export function useEditProfile() {
+
+  const { session } = useAuth();
+
+  const userId = session?.user?.id;
 
   const [profile, setProfile] =
     useState<any>(null);
@@ -27,6 +30,10 @@ export function useEditProfile() {
 
   useEffect(() => {
 
+    if (!userId) return;
+
+    const safeUserId = userId;
+
     async function loadProfile() {
 
       try {
@@ -34,7 +41,7 @@ export function useEditProfile() {
         setLoadingProfile(true);
 
         const data =
-          await getProfile(MOCK_USER_ID);
+          await getProfile(safeUserId);
 
         setProfile(data);
 
@@ -54,7 +61,7 @@ export function useEditProfile() {
 
     loadProfile();
 
-  }, []);
+  }, [userId]);
 
   const saveProfile = async (
     profileData: any

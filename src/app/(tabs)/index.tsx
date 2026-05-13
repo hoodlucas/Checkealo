@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import Screen from '@/components/ui/Screen';
 import { Text } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
+import { useAuth } from '@/hooks/useAuth';
 
 // Definimos la estructura de los datos del historial
 interface ScanHistoryItem {
@@ -17,9 +18,13 @@ interface ScanHistoryItem {
   barcode: string;
 }
 
-const MOCK_USER_ID = "dbc0f41d-77eb-44ad-b9d2-1b6682b3cb34"; 
 
 export default function Home() {
+
+  const { session } = useAuth();
+  const userId = session?.user?.id;
+  const userEmail = session?.user?.email;
+
   const router = useRouter();
   const isFocused = useIsFocused();
   
@@ -28,17 +33,17 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (isFocused) {
+    if (isFocused && userId) {
       fetchHistory();
     }
-  }, [isFocused]);
+  }, [isFocused, userId]);
 
   const fetchHistory = async () => {
     try {
       const { data, error } = await supabase
         .from('scan_history')
         .select('*')
-        .eq('user_id', MOCK_USER_ID)
+        .eq('user_id', userId)
         .order('scanned_at', { ascending: false })
         .limit(15);
 
@@ -76,7 +81,7 @@ export default function Home() {
   return (
     <Screen>
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>☀️ Bienvenido Lucas</Text>
+        <Text style={styles.welcomeText}>☀️ Bienvenido {userEmail?.split('@')[0]}</Text>
         <TouchableOpacity 
           activeOpacity={0.7} 
           onPress={() => router.push('/scanner')}

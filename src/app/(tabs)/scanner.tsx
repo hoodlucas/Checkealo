@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { Stack } from 'expo-router';
 import { CameraView } from 'expo-camera';
-
+import { useAuth } from '@/hooks/useAuth';
 // NUEVO: Importar supabase para guardar en la BD
 import { supabase } from '@/lib/supabase'; 
 
@@ -15,47 +15,67 @@ import DiagnosisService from "@/services/diagnosis.service";
 // Componentes de UI
 import { ScanResult } from '@/components/ui/ScanResult';
 
-const MOCK_USER_ID = "dbc0f41d-77eb-44ad-b9d2-1b6682b3cb34"; 
+
 
 export default function ScannerPage() {
     const { permission, requestPermission, isScanning, resumeScanning, pauseScanning } = useScanner();
+    
+    const { session } = useAuth();
+    const userId = session?.user?.id;
     
     const [userConditions, setUserConditions] = useState<any[]>([]);
     const [scanResult, setScanResult] = useState<{ product: any; diagnosis: any } | null>(null);
 
     useEffect(() => {
+        if (!userId) return;
+
+        const safeUserId = userId;
+
         async function loadConditions() {
             try {
-                const conditions = await ConditionsService.getUserActiveConditions(MOCK_USER_ID);
+                const conditions = await ConditionsService.getUserActiveConditions(safeUserId);
                 setUserConditions(conditions);
             } catch (error) {
                 console.error("Error cargando condiciones:", error);
             }
         }
+
         loadConditions();
-    }, []);
+    }, [userId]);
+
 
     // NUEVO: Función para insertar en la tabla 'scan_history'
-    const saveToHistory = async (product: any, diagnosis: any) => {
+    const saveToHistory = async (
+        barcode: string,
+        product: any,
+        diagnosis: any
+        ) => {
         try {
             const { error } = await supabase
-                .from('scan_history')
-                .insert([
-                    {
-                        user_id: MOCK_USER_ID,
-                        barcode: product.code,
-                        product_name: product.product_name || "Producto desconocido",
-                        brand: product.brands || "Marca desconocida",
-                        result: diagnosis.isSafe ? "Apto" : "No Apto", // Basado en tu lógica de DiagnosisService
-                        scanned_at: new Date().toISOString(),
-                    }
-                ]);
+            .from('scan_history')
+            .insert([
+                {
+                user_id: userId,
+                barcode: barcode,
+                product_name:
+                    product.product_name || "Producto desconocido",
+                brand:
+                    product.brands || "Marca desconocida",
+                result:
+                    diagnosis.isSafe ? "Apto" : "No Apto",
+                scanned_at: new Date().toISOString(),
+                },
+            ]);
 
             if (error) throw error;
+
         } catch (error) {
-            console.error("Error al guardar en el historial:", error);
+            console.error(
+            "Error al guardar en el historial:",
+            error
+            );
         }
-    };
+        };
 
     const handleScan = async (data: string) => {
         pauseScanning(); 
@@ -75,7 +95,7 @@ export default function ScannerPage() {
             const diagnosis = DiagnosisService.checkProduct(product, userConditions);
 
             // NUEVO: Llamamos a la función de guardado
-            await saveToHistory(product, diagnosis);
+            await saveToHistory(data, product, diagnosis);
 
             setScanResult({ product, diagnosis });
 

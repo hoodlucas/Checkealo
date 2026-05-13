@@ -1,0 +1,200 @@
+[1mdiff --git a/package-lock.json b/package-lock.json[m
+[1mindex d068a9e..67b0bf4 100644[m
+[1m--- a/package-lock.json[m
+[1m+++ b/package-lock.json[m
+[36m@@ -9,10 +9,9 @@[m
+       "version": "1.0.0",[m
+       "dependencies": {[m
+         "@expo/vector-icons": "^15.0.3",[m
+[31m-        "@react-native-async-storage/async-storage": "^2.2.0",[m
+[32m+[m[32m        "@react-native-async-storage/async-storage": "2.2.0",[m
+         "@supabase/supabase-js": "^2.105.1",[m
+         "expo": "~54.0.13",[m
+[31m-        "expo-camera": "~17.0.10",[m
+         "expo-checkbox": "~5.0.8",[m
+         "expo-router": "^6.0.11",[m
+         "expo-status-bar": "~3.0.8",[m
+[36m@@ -6712,26 +6711,6 @@[m
+         }[m
+       }[m
+     },[m
+[31m-    "node_modules/expo-camera": {[m
+[31m-      "version": "17.0.10",[m
+[31m-      "resolved": "https://registry.npmjs.org/expo-camera/-/expo-camera-17.0.10.tgz",[m
+[31m-      "integrity": "sha512-w1RBw83mAGVk4BPPwNrCZyFop0VLiVSRE3c2V9onWbdFwonpRhzmB4drygG8YOUTl1H3wQvALJHyMPTbgsK1Jg==",[m
+[31m-      "license": "MIT",[m
+[31m-      "dependencies": {[m
+[31m-        "invariant": "^2.2.4"[m
+[31m-      },[m
+[31m-      "peerDependencies": {[m
+[31m-        "expo": "*",[m
+[31m-        "react": "*",[m
+[31m-        "react-native": "*",[m
+[31m-        "react-native-web": "*"[m
+[31m-      },[m
+[31m-      "peerDependenciesMeta": {[m
+[31m-        "react-native-web": {[m
+[31m-          "optional": true[m
+[31m-        }[m
+[31m-      }[m
+[31m-    },[m
+     "node_modules/expo-checkbox": {[m
+       "version": "5.0.8",[m
+       "resolved": "https://registry.npmjs.org/expo-checkbox/-/expo-checkbox-5.0.8.tgz",[m
+[36m@@ -6763,9 +6742,9 @@[m
+       }[m
+     },[m
+     "node_modules/expo-font": {[m
+[31m-      "version": "55.0.6",[m
+[31m-      "resolved": "https://registry.npmjs.org/expo-font/-/expo-font-55.0.6.tgz",[m
+[31m-      "integrity": "sha512-x9czUA3UQWjIwa0ZUEs/eWJNqB4mAue/m4ltESlNPLZhHL0nWWqIfsyHmklTLFH7mVfcHSJvew6k+pR2FE1zVw==",[m
+[32m+[m[32m      "version": "55.0.7",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/expo-font/-/expo-font-55.0.7.tgz",[m
+[32m+[m[32m      "integrity": "sha512-oH39Xb+3i6Y69b7YRP+P+5WLx7621t+ep/RAgLwJJYpTjs7CnSohUG+873rEtqsTAuQGi63ms7x9ZeHj1E9LYw==",[m
+       "license": "MIT",[m
+       "peer": true,[m
+       "dependencies": {[m
+[1mdiff --git a/package.json b/package.json[m
+[1mindex 5837201..c9c73a4 100644[m
+[1m--- a/package.json[m
+[1m+++ b/package.json[m
+[36m@@ -12,10 +12,9 @@[m
+   },[m
+   "dependencies": {[m
+     "@expo/vector-icons": "^15.0.3",[m
+[31m-    "@react-native-async-storage/async-storage": "^2.2.0",[m
+[32m+[m[32m    "@react-native-async-storage/async-storage": "2.2.0",[m
+     "@supabase/supabase-js": "^2.105.1",[m
+     "expo": "~54.0.13",[m
+[31m-    "expo-camera": "~17.0.10",[m
+     "expo-checkbox": "~5.0.8",[m
+     "expo-router": "^6.0.11",[m
+     "expo-status-bar": "~3.0.8",[m
+[1mdiff --git a/src/app/(tabs)/_layout.tsx b/src/app/(tabs)/_layout.tsx[m
+[1mindex 52d84be..5fb3c7a 100644[m
+[1m--- a/src/app/(tabs)/_layout.tsx[m
+[1m+++ b/src/app/(tabs)/_layout.tsx[m
+[36m@@ -43,7 +43,7 @@[m [mexport default function LayoutTabs() {[m
+                 headerShown: false}} />[m
+                 [m
+             <Tabs.Screen [m
+[31m-              name="profile" [m
+[32m+[m[32m              name="profile/index"[m[41m [m
+               options={{ [m
+                 title: 'Profile',[m
+                 tabBarIcon: ({ color, size }) => ([m
+[1mdiff --git a/src/app/(tabs)/index.tsx b/src/app/(tabs)/index.tsx[m
+[1mindex 2425e5b..749525f 100644[m
+[1m--- a/src/app/(tabs)/index.tsx[m
+[1m+++ b/src/app/(tabs)/index.tsx[m
+[36m@@ -1,185 +1,15 @@[m
+[31m-import React, { useEffect, useState } from 'react';[m
+[31m-import { StyleSheet, TouchableOpacity, View, FlatList, ActivityIndicator } from 'react-native';[m
+[31m-import { useRouter } from 'expo-router';[m
+[31m-import { supabase } from '@/lib/supabase';[m
+[32m+[m[32mimport React, { useEffect } from 'react';[m
+ import Screen from '@/components/ui/Screen';[m
+[31m-import { Text } from 'react-native';[m
+[31m-import { useIsFocused } from '@react-navigation/native';[m
+[32m+[m[32mimport { Button } from 'react-native';[m
+[32m+[m[32mimport { router } from 'expo-router';[m
+ [m
+[31m-// Definimos la estructura de los datos del historial[m
+[31m-interface ScanHistoryItem {[m
+[31m-  id: string;[m
+[31m-  product_name: string;[m
+[31m-  brand: string;[m
+[31m-  result: string;[m
+[31m-  scanned_at: string;[m
+[31m-  user_id: string;[m
+[31m-  barcode: string;[m
+[31m-}[m
+ [m
+[31m-const MOCK_USER_ID = "dbc0f41d-77eb-44ad-b9d2-1b6682b3cb34"; [m
+ [m
+ export default function Home() {[m
+[31m-  const router = useRouter();[m
+[31m-  const isFocused = useIsFocused();[m
+[31m-  [m
+[31m-  // Tipamos el estado[m
+[31m-  const [history, setHistory] = useState<ScanHistoryItem[]>([]);[m
+[31m-  const [loading, setLoading] = useState<boolean>(true);[m
+[31m-[m
+[31m-  useEffect(() => {[m
+[31m-    if (isFocused) {[m
+[31m-      fetchHistory();[m
+[31m-    }[m
+[31m-  }, [isFocused]);[m
+[31m-[m
+[31m-  const fetchHistory = async () => {[m
+[31m-    try {[m
+[31m-      const { data, error } = await supabase[m
+[31m-        .from('scan_history')[m
+[31m-        .select('*')[m
+[31m-        .eq('user_id', MOCK_USER_ID)[m
+[31m-        .order('scanned_at', { ascending: false })[m
+[31m-        .limit(15);[m
+[31m-[m
+[31m-      if (error) throw error;[m
+[31m-      setHistory((data as ScanHistoryItem[]) || []);[m
+[31m-    } catch (error) {[m
+[31m-      console.error("Error cargando historial:", error);[m
+[31m-    } finally {[m
+[31m-      setLoading(false);[m
+[31m-    }[m
+[31m-  };[m
+[31m-[m
+[31m-  // Tipamos el renderItem[m
+[31m-  const renderHistoryItem = ({ item }: { item: ScanHistoryItem }) => ([m
+[31m-    <View style={styles.historyItem}>[m
+[31m-      <View style={styles.itemLeft}>[m
+[31m-        <View style={styles.placeholderIcon}>[m
+[31m-          <Text style={{ fontSize: 18 }}>{item.result === 'Apto' ? '✅' : '❌'}</Text>[m
+[31m-        </View>[m
+[31m-        <View style={{ flex: 1 }}>[m
+[31m-          <Text style={styles.productName} numberOfLines={1}>[m
+[31m-            {item.product_name || 'Producto desconocido'}[m
+[31m-          </Text>[m
+[31m-          <Text style={styles.brandName} numberOfLines={1}>[m
+[31m-            {item.brand || 'Marca desconocida'}[m
+[31m-          </Text>[m
+[31m-        </View>[m
+[31m-      </View>[m
+[31m-      <Text style={styles.timeText}>[m
+[31m-        {new Date(item.scanned_at).toLocaleDateString()}[m
+[31m-      </Text>[m
+[31m-    </View>[m
+[31m-  );[m
+[31m-[m
+[32m+[m[41m    [m
+   return ([m
+     <Screen>[m
+[31m-      <View style={styles.header}>[m
+[31m-        <Text style={styles.welcomeText}>☀️ Bienvenido Lucas</Text>[m
+[31m-        <TouchableOpacity [m
+[31m-          activeOpacity={0.7} [m
+[31m-          onPress={() => router.push('/scanner')}[m
+[31m-        >[m
+[31m-          <Text style={styles.mainTitle}>Consultar</Text>[m
+[31m-        </TouchableOpacity>[m
+[31m-      </View>[m
+[31m-[m
+[31m-      <View style={styles.historyContainer}>[m
+[31m-        <Text style={styles.historyTitle}>Historial de comidas</Text>[m
+[31m-        [m
+[31m-        {loading ? ([m
+[31m-          <ActivityIndicator color="#007AFF" style={{ marginTop: 20 }} />[m
+[31m-        ) : ([m
+[31m-          <FlatList[m
+[31m-            data={history}[m
+[31m-            keyExtractor={(item) => item.id}[m
+[31m-            renderItem={renderHistoryItem}[m
+[31m-            contentContainerStyle={styles.listContent}[m
+[31m-            showsVerticalScrollIndicator={false}[m
+[31m-            ListEmptyComponent={[m
+[31m-              <Text style={styles.emptyText}>No hay escaneos recientes.</Text>[m
+[31m-            }[m
+[31m-          />[m
+[31m-        )}[m
+[31m-      </View>[m
+[32m+[m[32m        <Button title="Go to Scanner" onPress={() => router.push

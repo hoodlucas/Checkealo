@@ -2,36 +2,56 @@ import { useEffect, useState } from "react";
 
 import { getProfile } from "../services/profile.service";
 import { Profile } from "../types/profile.types";
-import { MOCK_USER_ID } from "@/mocks/mocks/mockUser";
+
+import { useAuth } from "@/hooks/useAuth";
 
 export function useProfile() {
-  const [profile, setProfile] = useState<Profile | null>(
-    null
-  );
 
-  const [loading, setLoading] = useState(true);
+  const { session } = useAuth();
 
-  const [error, setError] = useState<string | null>(
-    null
-  );
+  const userId = session?.user?.id;
 
+  const [profile, setProfile] =
+    useState<Profile | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  
   useEffect(() => {
+
+    if (!userId) return;
+
+    const safeUserId = userId;
+
     async function loadProfile() {
+
       try {
+
         setLoading(true);
-// Simulamos una llamada a la API para obtener el perfil(MOCK_USER_ID)
-        const data = await getProfile(MOCK_USER_ID);
+
+        const data =
+          await getProfile(safeUserId);
 
         setProfile(data);
+
       } catch (err) {
+
         setError("Error al cargar perfil");
+
       } finally {
+
         setLoading(false);
       }
     }
 
     loadProfile();
-  }, []);
+
+  }, [userId]);
+
 
   return {
     profile,

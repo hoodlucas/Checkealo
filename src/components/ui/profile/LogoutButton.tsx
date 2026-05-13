@@ -4,10 +4,27 @@ import {
   TouchableOpacity,
 } from "react-native";
 
+import { router } from "expo-router";
+
+import { useAuth } from "@/hooks/useAuth";
+
 export function LogoutButton() {
+
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    router.replace("/login");
+  };
+
   return (
-    <TouchableOpacity style={styles.button}>
-      <Text style={styles.text}>Cerrar sesión</Text>
+    <TouchableOpacity
+      style={styles.button}
+      onPress={handleLogout}
+    >
+      <Text style={styles.text}>
+        Cerrar sesión
+      </Text>
     </TouchableOpacity>
   );
 }

@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
+import '@/lib/supabase';
+
 
 export default function RootLayout() {
   const { session, loading } = useAuth();
@@ -18,8 +20,9 @@ export default function RootLayout() {
   if (!session) {
     return (
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
         <Stack.Screen name="login" />
-        {/* <Stack.Screen name="register" /> */}
+        <Stack.Screen name="register" />
       </Stack>
     );
   }

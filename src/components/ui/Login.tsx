@@ -4,8 +4,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
 import { authService } from '../../services/auth.service';
+import { Link } from 'expo-router'; 
+import { useRouter } from 'expo-router';
+import { Alert } from 'react-native'; 
 
 const Login: React.FC = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,11 +31,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.mainContainer}
     >
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
@@ -64,18 +69,16 @@ const Login: React.FC = () => {
               <TextInput
                 style={styles.inputWithIcon}
                 placeholder="••••••••••••"
-                placeholderTextColor="#A0A0A0"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry={!showPassword} 
+                secureTextEntry={!showPassword}
                 autoCapitalize="none"
               />
-    
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconRight}>
-                <MaterialCommunityIcons 
-                  name={showPassword ? "eye-off-outline" : "eye-outline"} 
-                  size={24} 
-                  color="#A0A0A0" 
+                <MaterialCommunityIcons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={24}
+                  color="#A0A0A0"
                 />
               </TouchableOpacity>
             </View>
@@ -91,9 +94,11 @@ const Login: React.FC = () => {
 
           <View style={styles.registerContainer}>
             <Text style={styles.registerTextNormal}>¿No tenés cuenta? </Text>
-            <TouchableOpacity>
-              <Text style={styles.registerTextLink}>Registrate</Text>
-            </TouchableOpacity>
+            <Link href="/register" asChild>
+              <TouchableOpacity>
+                <Text style={styles.registerTextLink}>Registrate</Text>
+              </TouchableOpacity>
+            </Link>
           </View>
         </View>
       </ScrollView>
@@ -106,7 +111,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
-  scrollContainer: { 
+  scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
@@ -114,12 +119,15 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
-    padding: 25,    
+    padding: 25,
     width: '100%',
-    maxWidth: 400,  
+    maxWidth: 400,
     alignSelf: 'center',
     elevation: 4,
-    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)'
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   headerTitle: {
     fontSize: 28,
@@ -172,7 +180,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   forgotPasswordText: {
-    color: '#3B82F6', 
+    color: '#3B82F6',
     fontSize: 14,
     textDecorationLine: 'underline',
   },

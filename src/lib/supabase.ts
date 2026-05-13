@@ -11,10 +11,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("El URL y la Anon Key de Supabase son obligatorios. Revisa tu archivo .env");
 }
 
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: AsyncStorage, 
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

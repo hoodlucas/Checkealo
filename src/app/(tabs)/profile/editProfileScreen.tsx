@@ -10,32 +10,22 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-import { supabase }
-from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
-import {
-  useEditProfile,
-} from "@/hooks/useEditProfile";
-
-export const MOCK_USER_ID =
-  "94244a9c-d38c-4228-907e-8ad9b16a878e";
+import { useEditProfile } from "@/hooks/useEditProfile";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function EditProfileScreen() {
 
-  const [fullName, setFullName] =
-    useState("");
+  const { session } = useAuth();
 
-  const [phone, setPhone] =
-    useState("");
+  const userId = session?.user?.id;
 
-  const [birthDate, setBirthDate] =
-    useState("");
-
-  const [conditions, setConditions] =
-    useState<string[]>([]);
-
-  const [loadingProfile, setLoadingProfile] =
-    useState(true);
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [conditions, setConditions] = useState<string[]>([]);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   const {
     saveProfile,
@@ -45,6 +35,8 @@ export default function EditProfileScreen() {
 
   // cargar perfil REAL desde supabase
   useEffect(() => {
+
+    if (!userId) return;
 
     const fetchProfile = async () => {
 
@@ -57,7 +49,7 @@ export default function EditProfileScreen() {
         } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", MOCK_USER_ID)
+          .eq("id", userId)
           .single();
 
         if (profileError) {
@@ -76,7 +68,7 @@ export default function EditProfileScreen() {
               name
             )
           `)
-          .eq("user_id", MOCK_USER_ID);
+          .eq("user_id", userId);
 
         if (conditionsError) {
           throw conditionsError;
@@ -118,7 +110,7 @@ export default function EditProfileScreen() {
 
     fetchProfile();
 
-  }, []);
+  }, [userId]);
 
   const toggleCondition = (
     condition: string
@@ -143,9 +135,11 @@ export default function EditProfileScreen() {
 
   const handleSave = async () => {
 
+    if (!userId) return;
+
     const success =
       await saveProfile({
-        userId: MOCK_USER_ID,
+        userId,
         fullName,
         phone,
         birthDate,

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { Stack } from 'expo-router';
 import { CameraView } from 'expo-camera';
+import { useAuth } from '@/hooks/useAuth';
+// NUEVO: Importar supabase para guardar en la BD
+import { supabase } from '@/lib/supabase'; 
 
 // Hooks y Servicios
 import { useScanner } from '@/features/scanner/hooks/useScanner';
@@ -12,27 +15,67 @@ import DiagnosisService from "@/services/diagnosis.service";
 // Componentes de UI
 import { ScanResult } from '@/components/ui/ScanResult';
 
-// ID de usuario para pruebas (después lo cambiamos por el de Auth)
-const MOCK_USER_ID = "dbc0f41d-77eb-44ad-b9d2-1b6682b3cb34"; 
+
 
 export default function ScannerPage() {
     const { permission, requestPermission, isScanning, resumeScanning, pauseScanning } = useScanner();
     
+    const { session } = useAuth();
+    const userId = session?.user?.id;
+    
     const [userConditions, setUserConditions] = useState<any[]>([]);
     const [scanResult, setScanResult] = useState<{ product: any; diagnosis: any } | null>(null);
 
-    // Cargar condiciones de Supabase al iniciar
     useEffect(() => {
+        if (!userId) return;
+
+        const safeUserId = userId;
+
         async function loadConditions() {
             try {
-                const conditions = await ConditionsService.getUserActiveConditions(MOCK_USER_ID);
+                const conditions = await ConditionsService.getUserActiveConditions(safeUserId);
                 setUserConditions(conditions);
             } catch (error) {
                 console.error("Error cargando condiciones:", error);
             }
         }
+
         loadConditions();
-    }, []);
+    }, [userId]);
+
+
+    // NUEVO: Función para insertar en la tabla 'scan_history'
+    const saveToHistory = async (
+        barcode: string,
+        product: any,
+        diagnosis: any
+        ) => {
+        try {
+            const { error } = await supabase
+            .from('scan_history')
+            .insert([
+                {
+                user_id: userId,
+                barcode: barcode,
+                product_name:
+                    product.product_name || "Producto desconocido",
+                brand:
+                    product.brands || "Marca desconocida",
+                result:
+                    diagnosis.isSafe ? "Apto" : "No Apto",
+                scanned_at: new Date().toISOString(),
+                },
+            ]);
+
+            if (error) throw error;
+
+        } catch (error) {
+            console.error(
+            "Error al guardar en el historial:",
+            error
+            );
+        }
+        };
 
     const handleScan = async (data: string) => {
         pauseScanning(); 
@@ -49,8 +92,10 @@ export default function ScannerPage() {
                 return;
             }
 
-            // Usamos el servicio externo para la evaluación
             const diagnosis = DiagnosisService.checkProduct(product, userConditions);
+
+            // NUEVO: Llamamos a la función de guardado
+            await saveToHistory(data, product, diagnosis);
 
             setScanResult({ product, diagnosis });
 
@@ -64,12 +109,11 @@ export default function ScannerPage() {
         }
     };
 
+    // ... resto del componente (handleClose, renders, styles) se mantiene igual
     const handleClose = () => {
         setScanResult(null);
         resumeScanning();
     };
-
-    // --- Renderizado de Pantalla ---
 
     if (!permission) {
         return (
@@ -121,6 +165,7 @@ export default function ScannerPage() {
     );
 }
 
+// ... (los estilos se mantienen igual)
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#000' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
